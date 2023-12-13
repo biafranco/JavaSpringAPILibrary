@@ -1,16 +1,12 @@
 package com.librarylink.api.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.librarylink.api.models.Book;
+import com.librarylink.api.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,27 +16,23 @@ import jakarta.validation.Valid;
 @Api(value = "BookController")
 @ResponseBody
 @RestController
-@RequestMapping("/v3/api")
+@RequestMapping("book")
 public class BookController {
-    public BookController() {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @PostMapping("book")
+    public String createStudent(@RequestParam String name) {
+        bookRepository.save(new Book("nome", 123));
+        return " Saved successfully";
     }
 
-    @Operation(summary = "Create a new book")
-    @PostMapping("/book")
-    public void createBook(@Valid @RequestBody String bookRequest) {}
-
-    @ApiOperation(value = "List of all Books", response = ArrayList.class, tags = "book")
-   @GetMapping(value = "/books")
-    public void findAllBook() {}
-
-    @GetMapping(value = "/book/{id}")
-    public void findByID(@PathVariable("id") Long bookId) {}
-
-    @Operation(summary = "Delete a Book")
-    @DeleteMapping("/book/{id}")
-    public void deleteBook(@PathVariable("id") Long bookId) {}
-
-    @Operation(summary = "Update a Book")
-    @PutMapping("/book/{id}")
-    public void updateBook(@PathVariable("id") Long usersId, @RequestBody String nada) {}
+    @GetMapping("book")
+    public List<Book> getAllStudents() {
+        return (List<Book>) bookRepository.findAll();
+    }
 }
+
+
+
+
