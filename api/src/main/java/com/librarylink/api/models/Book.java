@@ -1,54 +1,57 @@
 package com.librarylink.api.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Entity
+@Table(name = "BOOK")
 public class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
+    @Getter
     private String name;
 
+    @Setter
+    @Getter
     private int codigo;
 
+    @Setter
+    @Getter
     private String categoria;
 
+    @Setter
+    @Getter
+    @Column(name = "autor")
     private String autor;
 
+    @Setter
+    @Getter
     private Date dataLancamento;
 
+    @Setter
+    @Getter
     private int numeroPaginas;
 
+    @Setter
+    @Getter
     private Date dataCompra;
 
-    public Book(String name, int codigo) {
-        this.name = name;
+    public Book(int codigo, String categoria, String name, String autor) {
         this.codigo = codigo;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+        this.categoria = categoria;
         this.name = name;
+        this.autor = autor;
     }
 
-    public int getCodigo() {
-        return codigo;
+    public String toString() {
+        return "Tutorial [id=" + id + ", cod=" + codigo + ", autor=" + autor + ", name=" + name+"]";
     }
-    }
+}
