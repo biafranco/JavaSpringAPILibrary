@@ -1,5 +1,6 @@
 package com.librarylink.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.librarylink.api.models.Book;
 import com.librarylink.api.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,9 @@ public class BookController {
     @PostMapping("/book")
     public ResponseEntity<Book> createBook(@RequestBody Book book) {
         try {
-            Book _book = bookRepository.save(new Book(book.getCodigo(), book.getCategoria(), book.getName(), book.getAutor()));
+            ObjectMapper mapper = new ObjectMapper();
+            Book bookteste = mapper.readValue(book.toString(), Book.class);
+            Book _book = bookRepository.save(book);
             return new ResponseEntity<>(_book, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -50,13 +53,11 @@ public class BookController {
 
         if (bookData.isPresent()) {
             Book _book = bookData.get();
+            _book.setLibrary(book.getLibrary());
             _book.setCodigo(book.getCodigo());
             _book.setCategoria(book.getCategoria());
-            _book.setName(book.getName());
+            _book.setTittle(book.getTittle());
             _book.setAutor(book.getAutor());
-            _book.setDataLancamento(book.getDataLancamento());
-            _book.setNumeroPaginas(book.getNumeroPaginas());
-            _book.setDataCompra(book.getDataCompra());
 
             return new ResponseEntity<>(bookRepository.save(_book), HttpStatus.OK);
         } else {

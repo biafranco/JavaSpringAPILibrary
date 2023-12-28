@@ -2,6 +2,7 @@ package com.librarylink.api.models;
 
 import com.librarylink.api.common.UserCategory;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 @AllArgsConstructor
@@ -16,14 +17,16 @@ public class Usuario {
 
     @Setter
     @Getter
+    @NotEmpty
     private int codigo;
 
-    @Setter
     @Getter
-    private UserCategory categoria;
+    @Setter
+    private UserCategory userType;
 
     @Setter
     @Getter
+    @NotEmpty
     private String nome;
 
     @Setter
@@ -32,17 +35,15 @@ public class Usuario {
 
     @Setter
     @Getter
+    @NotEmpty
     private String telefone;
 
-    public Usuario(int codigo, UserCategory categoria, String nome, String endereco, String telefone) {
+    public Usuario(int codigo, UserCategory userType, String nome, String endereco, String telefone) {
         this.codigo = codigo;
-        this.categoria = categoria;
+        this.userType = userType;
         this.nome = nome;
         this.endereco = endereco;
         this.telefone = telefone;
     }
 
-    public String toString() {
-        return "Usuario [id=" + id + ", codigo=" + codigo + ", categoria=" + categoria + ", nome=" + nome + ", endereco=" + endereco + ", telefone=" + telefone + "]";
-    }
 }
