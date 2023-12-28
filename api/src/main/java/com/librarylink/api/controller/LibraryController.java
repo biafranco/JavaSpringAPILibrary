@@ -21,7 +21,7 @@ public class LibraryController {
     @PostMapping("/library")
     public ResponseEntity<Library> createLibrary(@RequestBody Library library) {
         try {
-            Library _library = libraryRepository.save(new Library(library.getCodigo(), library.getEndereco(), library.getProprietario(), library.getTelefone()));
+            Library _library = libraryRepository.save(new Library(library.getCodigo(), library.getEndereco(), library.getProprietario(), library.getBooks()));
             return new ResponseEntity<>(_library, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -53,7 +53,7 @@ public class LibraryController {
             _library.setCodigo(library.getCodigo());
             _library.setEndereco(library.getEndereco());
             _library.setProprietario(library.getProprietario());
-            _library.setTelefone(library.getTelefone());
+            _library.setBooks(library.getBooks());
 
             return new ResponseEntity<>(libraryRepository.save(_library), HttpStatus.OK);
         } else {

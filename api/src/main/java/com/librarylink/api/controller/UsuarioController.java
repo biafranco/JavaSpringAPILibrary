@@ -21,7 +21,7 @@ public class UsuarioController {
     @PostMapping("/usuario")
     public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
         try {
-            Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getCodigo(), usuario.getCategoria(), usuario.getNome(), usuario.getEndereco(), usuario.getTelefone()));
+            Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getCodigo(), usuario.getUserType(), usuario.getNome(), usuario.getEndereco(), usuario.getTelefone()));
             return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -51,7 +51,7 @@ public class UsuarioController {
         if (usuarioData.isPresent()) {
             Usuario _usuario = usuarioData.get();
             _usuario.setCodigo(usuario.getCodigo());
-            _usuario.setCategoria(usuario.getCategoria());
+            _usuario.setUserType(usuario.getUserType());
             _usuario.setNome(usuario.getNome());
             _usuario.setEndereco(usuario.getEndereco());
             _usuario.setTelefone(usuario.getTelefone());

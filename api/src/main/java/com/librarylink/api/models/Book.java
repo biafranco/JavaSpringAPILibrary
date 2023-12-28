@@ -1,57 +1,40 @@
 package com.librarylink.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "BOOK")
-public class Book {
+public class Book implements Serializable {
 
+    @JsonProperty("id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
-    @Getter
-    private String name;
+    @JsonProperty("tittle")
+    private String tittle;
 
-    @Setter
-    @Getter
+    @JsonProperty("codigo")
     private int codigo;
 
-    @Setter
-    @Getter
+    @JsonProperty("categoria")
     private String categoria;
 
-    @Setter
-    @Getter
-    @Column(name = "autor")
+    @JsonProperty("autor")
     private String autor;
 
-    @Setter
-    @Getter
-    private Date dataLancamento;
-
-    @Setter
-    @Getter
-    private int numeroPaginas;
-
-    @Setter
-    @Getter
-    private Date dataCompra;
-
-    public Book(int codigo, String categoria, String name, String autor) {
-        this.codigo = codigo;
-        this.categoria = categoria;
-        this.name = name;
-        this.autor = autor;
-    }
-
-    public String toString() {
-        return "Tutorial [id=" + id + ", cod=" + codigo + ", autor=" + autor + ", name=" + name+"]";
-    }
+    @JsonProperty("library")
+    @JoinColumn(name = "library_id")
+    @ManyToOne
+    private Library library;
 }

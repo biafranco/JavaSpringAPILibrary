@@ -1,41 +1,46 @@
 package com.librarylink.api.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+
+import java.io.Serializable;
+import java.util.List;
 
 @NoArgsConstructor
 @Entity
-@Table(name = "LIBRARY")
-public class Library {
+public class Library implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
 
-    @Setter
     @Getter
+    @Setter
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int codigo;
 
-    @Setter
     @Getter
+    @Setter
+    @NotEmpty
     private String endereco;
 
-    @Setter
     @Getter
+    @Setter
+    @NotEmpty
     private String proprietario;
 
-    @Setter
     @Getter
-    private String telefone;
+    @Setter
+    @OneToMany(mappedBy = "library")
+    private List<Book> books;
 
-    public Library(int codigo, String endereco, String proprietario, String telefone) {
+
+    public Library(int codigo, String endereco, String proprietario, List<Book> books) {
         this.codigo = codigo;
         this.endereco = endereco;
         this.proprietario = proprietario;
-        this.telefone = telefone;
+        this.books = books;
     }
 
-    public String toString() {
-        return "Library [id=" + id + ", codigo=" + codigo + ", endereco=" + endereco + ", proprietario=" + proprietario + ", telefone=" + telefone + "]";
-    }
 }
