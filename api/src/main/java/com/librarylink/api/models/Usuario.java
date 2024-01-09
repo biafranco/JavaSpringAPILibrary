@@ -1,49 +1,36 @@
 package com.librarylink.api.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.librarylink.api.common.UserCategory;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
+@Entity
+@Table(name = "TB_USUARIO")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table(name = "USUARIO")
+@Getter
+@Setter
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "ID")
     private Long id;
 
-    @Setter
-    @Getter
-    @NotEmpty
-    private int codigo;
+    @Column(name = "CATEGORIA", nullable = false)
+    private String categoria;
 
-    @Getter
-    @Setter
-    private UserCategory userType;
-
-    @Setter
-    @Getter
-    @NotEmpty
+    @Column(name = "NOME", nullable = false)
     private String nome;
 
-    @Setter
-    @Getter
+    @Column(name = "ENDERECO")
     private String endereco;
 
-    @Setter
-    @Getter
-    @NotEmpty
+    @Column(name = "TELEFONE", nullable = false)
     private String telefone;
-
-    public Usuario(int codigo, UserCategory userType, String nome, String endereco, String telefone) {
-        this.codigo = codigo;
-        this.userType = userType;
-        this.nome = nome;
-        this.endereco = endereco;
-        this.telefone = telefone;
-    }
 
 }

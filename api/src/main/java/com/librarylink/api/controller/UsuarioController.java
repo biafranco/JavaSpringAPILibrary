@@ -1,10 +1,9 @@
-package com.librarylink.api.controller;
+package com.librarylink.api.controllers;
 
+import com.librarylink.api.models.Emprestimo;
 import com.librarylink.api.models.Usuario;
 import com.librarylink.api.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,61 +14,64 @@ import java.util.Optional;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioRepository usuarioRep;
 
-    // Create - POST
-    @PostMapping("/usuario")
-    public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
+    // Cadastrar vários - POST
+    @PostMapping("/usuarios")
+    public List<Usuario> criarUsuarios(@RequestBody List<Usuario> usuarios){
+        return usuarioRep.saveAll(usuarios);
+    }
+
+    // Deletar - DELETE
+    @DeleteMapping("/usuarios/{id}")
+    public String deletaUsuario(@PathVariable Long id) {
         try {
-            Usuario _usuario = usuarioRepository.save(new Usuario(usuario.getCodigo(), usuario.getUserType(), usuario.getNome(), usuario.getEndereco(), usuario.getTelefone()));
-            return new ResponseEntity<>(_usuario, HttpStatus.CREATED);
+            usuarioRep.deleteById(id);
+            return "Apagado com sucesso";
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return "Esse emprestimo não existe ou não pôde ser apagado" + e.getMessage();
         }
     }
 
-    // Read All - GET
+    // Ler todos - GET
     @GetMapping("/usuario")
-    public List<Usuario> getAllUsuarios() {
-        return usuarioRepository.findAll();
+    public List<Usuario> LerTudoUsuarios() {
+        return usuarioRep.findAll();
     }
 
-    // Read One - GET
+    // Ler por ID - GET
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable("id") Long id) {
-        Optional<Usuario> usuarioData = usuarioRepository.findById(id);
-
-        return usuarioData.map(usuario -> new ResponseEntity<>(usuario, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    // Update - PUT
-    @PutMapping("/usuario/{id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable("id") Long id, @RequestBody Usuario usuario) {
-        Optional<Usuario> usuarioData = usuarioRepository.findById(id);
-
-        if (usuarioData.isPresent()) {
-            Usuario _usuario = usuarioData.get();
-            _usuario.setCodigo(usuario.getCodigo());
-            _usuario.setUserType(usuario.getUserType());
-            _usuario.setNome(usuario.getNome());
-            _usuario.setEndereco(usuario.getEndereco());
-            _usuario.setTelefone(usuario.getTelefone());
-
-            return new ResponseEntity<>(usuarioRepository.save(_usuario), HttpStatus.OK);
+    public String LerUsuarioPorId(@PathVariable Long id) {
+        Optional<Usuario> usuario = usuarioRep.findById(id);
+        if (usuario.isPresent()) {
+            return usuario.get().toString();
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "Usuario não encontrado com o ID: " + id;
         }
     }
 
-    // Delete - DELETE
-    @DeleteMapping("/usuario/{id}")
-    public ResponseEntity<HttpStatus> deleteUsuario(@PathVariable("id") Long id) {
+    // Atualizar - PUT
+    @PutMapping("/usuario/{id}")
+    public String editarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
         try {
-            usuarioRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            Optional<Usuario> usuarioEntity = usuarioRep.findById(id);
+
+            if (usuarioEntity.isPresent()) {
+                Usuario usuarioAtualizado = usuarioEntity.get();
+                usuarioAtualizado.setCategoria(usuario.getCategoria());
+                usuarioAtualizado.setNome(usuario.getNome());
+                usuarioAtualizado.setEndereco(usuario.getEndereco());
+                usuarioAtualizado.setTelefone(usuario.getTelefone());
+
+                usuarioRep.save(usuarioAtualizado);
+                return "usuario salvo com sucesso";
+            } else {
+                return "usuario nao encontrado com o id" + id;
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+                return "Erro ao atualizar o usuario: " + e.getMessage();
+
         }
     }
 }
