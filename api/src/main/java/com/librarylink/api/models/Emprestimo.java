@@ -1,5 +1,6 @@
 package com.librarylink.api.models;
 
+import com.librarylink.api.common.SituacaoEmprestimo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,6 +40,7 @@ public class Emprestimo implements Serializable {
     private Date data_fim;
 
     @Column(name = "SITUACAO", nullable = false)
-    private String situacao;
+    @Enumerated(EnumType.STRING)
+    private SituacaoEmprestimo situacao;
 
 }

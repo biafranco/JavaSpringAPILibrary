@@ -1,10 +1,7 @@
 package com.librarylink.api.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.librarylink.api.common.UserCategory;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 @Entity
@@ -22,7 +19,8 @@ public class Usuario {
     private Long id;
 
     @Column(name = "CATEGORIA", nullable = false)
-    private String categoria;
+    @Enumerated(EnumType.STRING)
+    private UserCategory categoria;
 
     @Column(name = "NOME", nullable = false)
     private String nome;
