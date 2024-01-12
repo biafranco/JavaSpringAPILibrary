@@ -1,5 +1,6 @@
 package com.librarylink.api;
 
+import com.librarylink.api.service.LivroService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -26,5 +27,11 @@ public class SwaggerConfig {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(getApiInfo()).select()
                 .apis(RequestHandlerSelectors.basePackage(API_BASE_PACKAGE)).paths(PathSelectors.any()).build();
     }
+
+    @Bean
+    public LivroService livroService() {
+        return new LivroService();
+    }
+
 
 }
