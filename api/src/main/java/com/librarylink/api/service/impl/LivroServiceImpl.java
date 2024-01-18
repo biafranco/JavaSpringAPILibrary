@@ -1,18 +1,17 @@
-package com.librarylink.api.service;
+package com.librarylink.api.service.impl;
 
 import com.librarylink.api.dto.LivroDTO;
-import com.librarylink.api.models.Biblioteca;
 import com.librarylink.api.models.Livro;
 import com.librarylink.api.repository.BibliotecaRepository;
 import com.librarylink.api.repository.LivroRepository;
+import com.librarylink.api.service.schedule.LivroService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-public class LivroService {
+public class LivroServiceImpl implements LivroService {
 
     @Autowired
     public LivroRepository livroRep;
@@ -33,7 +32,7 @@ public class LivroService {
     public void saveAll(List<LivroDTO> livros) {
         List<Livro> livrosEntity = livros.stream()
                 .map(this::convertDtoToEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         livroRep.saveAll(livrosEntity);
     }
@@ -43,7 +42,7 @@ public class LivroService {
 
         return livrosEntity.stream()
                 .map(this::convertEntityToDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<LivroDTO> findById(Long id) {
@@ -52,7 +51,7 @@ public class LivroService {
         return livroEntity.map(this::convertEntityToDto);
     }
 
-    public Livro editLivro(Long id, LivroDTO livroDTO) {
+    public LivroDTO updateLivro(Long id, LivroDTO livroDTO) {
         Livro livro = livroRep.findById(id).orElseThrow(() -> new RuntimeException("Livro não encontrada com o ID: " + id));
         livro.setTitulo(livroDTO.getTitulo());
         livro.setAutor(livroDTO.getAutor());
@@ -61,7 +60,13 @@ public class LivroService {
         livro.setData_compra(livroDTO.getData_compra());
         livro.setNumero_pagina(livroDTO.getNumero_pagina());
         livro.setBiblioteca(bibliotecaRep.findById(livroDTO.getBibliotecaId()).get());
-        return livroRep.save(livro);
+        livroRep.save(livro);
+        return convertEntityToDto(livro);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        livroRep.deleteById(id);
     }
 }
 

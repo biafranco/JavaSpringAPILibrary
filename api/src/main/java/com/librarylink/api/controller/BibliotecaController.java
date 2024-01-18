@@ -1,8 +1,11 @@
 package com.librarylink.api.controller;
 
-import com.librarylink.api.models.Biblioteca;
-import com.librarylink.api.repository.BibliotecaRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.librarylink.api.dto.BibliotecaDTO;
+import com.librarylink.api.service.schedule.BibliotecaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,69 +16,56 @@ import java.util.Optional;
 public class BibliotecaController {
 
     @Autowired
-    private BibliotecaRepository bibliotecaRep;
+    BibliotecaService bibliotecaService;
 
     // Cadastrar várias bibliotecas - POST
     @PostMapping("/bibliotecas")
-    public String criarBibliotecas(@RequestBody List<Biblioteca> bibliotecas){
-        try{
-            bibliotecaRep.saveAll(bibliotecas);
-            return "Bibliotecas salvas com sucesso";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Revise os valores e tente novamente. Erro: " + e.getMessage();
-        }
+    public ResponseEntity<List<BibliotecaDTO>> createBibliotecas(@RequestBody List<BibliotecaDTO> bibliotecas){
+        return new ResponseEntity<>(bibliotecaService.saveAll(bibliotecas), HttpStatus.CREATED);
     }
 
     //Deletar - Delete
     @DeleteMapping("/biblioteca/{id}")
-    public String deletaBiblioteca(@PathVariable("id") Long id){
+    public ResponseEntity<String> deleteBiblioteca(@PathVariable("id") Long id){
         try {
-            bibliotecaRep.deleteById(id);
-            return "Apagado com sucesso";
+            bibliotecaService.deleteById(id);
+            return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
         } catch (Exception e) {
-            return "Essa biblioteca não existe ou não pôde ser apagada" + e.getMessage();
+            return new ResponseEntity<>("This library does not exist or could not be deleted" + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     // Ler todas - GET
     @GetMapping("/biblioteca")
-    public List<Biblioteca> LerTudoBiblioteca() {
-        return bibliotecaRep.findAll();
+    public ResponseEntity<List<BibliotecaDTO>> getAllBibliotecas() {
+        return new ResponseEntity<>(bibliotecaService.findAll(), HttpStatus.OK);
     }
 
     // Ler uma por id - GET
     @GetMapping("/biblioteca/{id}")
-    public String LerBibliotecaPorId(@PathVariable("id") Long id) {
-        Optional<Biblioteca> biblioteca = bibliotecaRep.findById(id);
+    public ResponseEntity<BibliotecaDTO> getBibliotecaById(@PathVariable("id") Long id) {
+        try {
+            Optional<BibliotecaDTO> bibliotecaDTO = bibliotecaService.findById(id);
 
-        if (biblioteca.isPresent()) {
-            return biblioteca.get().toString();
-        } else {
-            return "Biblioteca não encontrada com o ID: " + id;
+            if (bibliotecaDTO.isPresent()) {
+                return new ResponseEntity<>(bibliotecaDTO.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        }
+        catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Editar por id - PUT
     @PutMapping("/biblioteca/{id}")
-    public String editarBiblioteca(@PathVariable Long id, @RequestBody Biblioteca biblioteca) {
+    public ResponseEntity<BibliotecaDTO> updateBiblioteca(@PathVariable Long id, @RequestBody BibliotecaDTO bibliotecaDTO) {
         try {
-            Optional<Biblioteca> bibliotecaEntity = bibliotecaRep.findById(id);
-
-            if (bibliotecaEntity.isPresent()) {
-                Biblioteca bibliotecaAtualizada = bibliotecaEntity.get();
-                bibliotecaAtualizada.setEndereco(biblioteca.getEndereco());
-                bibliotecaAtualizada.setProprietario(biblioteca.getProprietario());
-                bibliotecaAtualizada.setEndereco(biblioteca.getEndereco());
-
-                bibliotecaRep.save(bibliotecaAtualizada);
-                return "Biblioteca atualizada com sucesso";
-            } else {
-                return "Biblioteca não encontrada com o ID: " + id;
-            }
+            BibliotecaDTO biblioteca = bibliotecaService.editBiblioteca(id, bibliotecaDTO);
+            return new ResponseEntity<>(biblioteca, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao atualizar a biblioteca: " + e.getMessage();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

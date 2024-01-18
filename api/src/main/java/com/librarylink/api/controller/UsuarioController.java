@@ -1,9 +1,10 @@
-package com.librarylink.api.controllers;
+package com.librarylink.api.controller;
 
-import com.librarylink.api.models.Emprestimo;
-import com.librarylink.api.models.Usuario;
-import com.librarylink.api.repository.UsuarioRepository;
+import com.librarylink.api.dto.UsuarioDTO;
+import com.librarylink.api.service.schedule.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,64 +15,55 @@ import java.util.Optional;
 public class UsuarioController {
 
     @Autowired
-    private UsuarioRepository usuarioRep;
+    private UsuarioService usuarioService;
 
     // Cadastrar vários - POST
     @PostMapping("/usuarios")
-    public List<Usuario> criarUsuarios(@RequestBody List<Usuario> usuarios){
-        return usuarioRep.saveAll(usuarios);
+    public ResponseEntity<List<UsuarioDTO>> criarUsuarios(@RequestBody List<UsuarioDTO> usuarios){
+        return ResponseEntity.status(HttpStatus.CREATED).body(usuarioService.saveAll(usuarios));
     }
 
     // Deletar - DELETE
     @DeleteMapping("/usuarios/{id}")
-    public String deletaUsuario(@PathVariable Long id) {
+    public ResponseEntity<String> deletaUsuario(@PathVariable Long id) {
         try {
-            usuarioRep.deleteById(id);
-            return "Apagado com sucesso";
+            usuarioService.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Apagado com sucesso");
         } catch (Exception e) {
-            return "Esse emprestimo não existe ou não pôde ser apagado" + e.getMessage();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Esse emprestimo não existe ou não pôde ser apagado" + e.getMessage());
         }
     }
 
     // Ler todos - GET
     @GetMapping("/usuario")
-    public List<Usuario> LerTudoUsuarios() {
-        return usuarioRep.findAll();
+    public ResponseEntity<List<UsuarioDTO>> LerTudoUsuarios() {
+        return ResponseEntity.status(HttpStatus.OK).body(usuarioService.findAll());
     }
 
     // Ler por ID - GET
     @GetMapping("/usuario/{id}")
-    public String LerUsuarioPorId(@PathVariable Long id) {
-        Optional<Usuario> usuario = usuarioRep.findById(id);
-        if (usuario.isPresent()) {
-            return usuario.get().toString();
-        } else {
-            return "Usuario não encontrado com o ID: " + id;
+    public ResponseEntity<UsuarioDTO> LerUsuarioPorId(@PathVariable Long id) {
+        try {
+            Optional<UsuarioDTO> usuario = usuarioService.findById(id);
+            if (usuario.isPresent()) {
+                return ResponseEntity.status(HttpStatus.OK).body(usuario.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     // Atualizar - PUT
     @PutMapping("/usuario/{id}")
-    public String editarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioDTO> editarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuario) {
         try {
-            Optional<Usuario> usuarioEntity = usuarioRep.findById(id);
-
-            if (usuarioEntity.isPresent()) {
-                Usuario usuarioAtualizado = usuarioEntity.get();
-                usuarioAtualizado.setCategoria(usuario.getCategoria());
-                usuarioAtualizado.setNome(usuario.getNome());
-                usuarioAtualizado.setEndereco(usuario.getEndereco());
-                usuarioAtualizado.setTelefone(usuario.getTelefone());
-
-                usuarioRep.save(usuarioAtualizado);
-                return "usuario salvo com sucesso";
-            } else {
-                return "usuario nao encontrado com o id" + id;
-                }
-            }catch (Exception e) {
-                e.printStackTrace();
-                return "Erro ao atualizar o usuario: " + e.getMessage();
-
+            UsuarioDTO usuarioDTO = usuarioService.editUsuario(id, usuario);
+            return ResponseEntity.status(HttpStatus.OK).body(usuarioDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

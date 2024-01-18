@@ -1,8 +1,12 @@
 package com.librarylink.api.controller;
 
-import com.librarylink.api.models.Emprestimo;
-import com.librarylink.api.repository.EmprestimoRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.librarylink.api.dto.BibliotecaDTO;
+import com.librarylink.api.dto.EmprestimoDTO;
+import com.librarylink.api.service.schedule.EmprestimoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,66 +17,54 @@ import java.util.Optional;
 public class EmprestimoController {
 
     @Autowired
-    private EmprestimoRepository emprestimoRep;
+    private EmprestimoService emprestimoService;
 
     // Cadastrar vários - POST
-    @PostMapping("/emprestimo")
-    public List<Emprestimo> criarEmprestimos(@RequestBody List<Emprestimo> emprestimos){
-        return emprestimoRep.saveAll(emprestimos);
+    @PostMapping("/emprestimos")
+    public ResponseEntity<List<EmprestimoDTO>> createEmprestimos(@RequestBody List<EmprestimoDTO> emprestimos){
+        return new ResponseEntity<>(emprestimoService.saveAll(emprestimos), HttpStatus.CREATED);
     }
 
     // Deletar - Delete
-    @DeleteMapping("/empretimo/{id}")
-    public String deletaEmprestimo(@PathVariable Long id) {
+    @DeleteMapping("/emprestimos/{id}")
+    public ResponseEntity<String> deleteEmprestimo(@PathVariable Long id) {
         try {
-            emprestimoRep.deleteById(id);
-            return "Apagado com sucesso";
+            emprestimoService.deleteById(id);
+            return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
         } catch (Exception e) {
-            return "Esse emprestimo não existe ou não pôde ser apagado" + e.getMessage();
+            return new ResponseEntity<>("This loan does not exist or could not be deleted" + e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     // Ler todos - GET
-    @GetMapping("/emprestimo")
-    public List<Emprestimo> LerTudoEmprestimo() {
-        return emprestimoRep.findAll();
+    @GetMapping("/emprestimos")
+    public ResponseEntity<List<EmprestimoDTO>> getAllEmprestimos() {
+        return new ResponseEntity<>(emprestimoService.findAll(), HttpStatus.OK);
     }
 
     // Ler uma por ID - GET
-    @GetMapping("/emprestimo/{id}")
-    public String LerEmprestimoPorId(@PathVariable Long id) {
-        Optional<Emprestimo> emprestimo = emprestimoRep.findById(id);
-        if (emprestimo.isPresent()) {
-            return emprestimo.get().toString();
-        } else {
-            return "Biblioteca não encontrada com o ID: " + id;
+    @GetMapping("/emprestimos/{id}")
+    public ResponseEntity<EmprestimoDTO> getEmprestimoById(@PathVariable Long id) {
+        try {
+            Optional<EmprestimoDTO> emprestimo = emprestimoService.findById(id);
+            if (emprestimo.isPresent()) {
+                return new ResponseEntity<>(emprestimo.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Editar por Id - PUT
-    @PutMapping("/emprestimo/{id}")
-    public String editarEmprestimo(@PathVariable Long id, @RequestBody Emprestimo emprestimo) {
+    @PutMapping("/emprestimos/{id}")
+    public ResponseEntity<EmprestimoDTO> updateEmprestimo(@PathVariable Long id, @RequestBody EmprestimoDTO emprestimoDTO) {
         try {
-            Optional<Emprestimo> emprestimoEntity = emprestimoRep.findById(id);
-            
-            if (emprestimoEntity.isPresent()) {
-                Emprestimo emprestimoAtualizado = emprestimoEntity.get();
-                emprestimoAtualizado.setUsuario(emprestimo.getUsuario());
-                emprestimoAtualizado.setLivro(emprestimo.getLivro());
-                emprestimoAtualizado.setBiblioteca(emprestimo.getBiblioteca());
-                emprestimoAtualizado.setData_inicio(emprestimo.getData_inicio());
-                emprestimoAtualizado.setData_fim(emprestimo.getData_fim());
-                emprestimoAtualizado.setSituacao(emprestimo.getSituacao());
-
-                emprestimoRep.save(emprestimoAtualizado);
-                return "emprestimo atualizado";
-            } else {
-                return "nao encontrado com o id" + id;
-            }
-        }catch (Exception e) {
-            e.printStackTrace();
-            return "Erro ao atualizar a livro: " + e.getMessage();
+            EmprestimoDTO emprestimo = emprestimoService.editEmprestimo(id, emprestimoDTO);
+            return new ResponseEntity<>(emprestimo, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 }

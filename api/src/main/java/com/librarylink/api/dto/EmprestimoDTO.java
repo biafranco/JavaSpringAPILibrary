@@ -1,9 +1,6 @@
 package com.librarylink.api.dto;
 
 import com.librarylink.api.common.SituacaoEmprestimo;
-import com.librarylink.api.models.Biblioteca;
-import com.librarylink.api.models.Livro;
-import com.librarylink.api.models.Usuario;
 import lombok.Getter;
 import lombok.Setter;
 
