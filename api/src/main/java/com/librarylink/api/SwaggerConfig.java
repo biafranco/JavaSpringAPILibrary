@@ -1,6 +1,9 @@
 package com.librarylink.api;
 
-import com.librarylink.api.service.LivroService;
+import com.librarylink.api.service.impl.BibliotecaServiceImpl;
+import com.librarylink.api.service.impl.EmprestimoServiceImpl;
+import com.librarylink.api.service.impl.LivroServiceImpl;
+import com.librarylink.api.service.impl.UsuarioServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,9 +32,16 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public LivroService livroService() {
-        return new LivroService();
+    public LivroServiceImpl livroService() {
+        return new LivroServiceImpl();
     }
 
+    @Bean
+    public UsuarioServiceImpl usuarioService(){return new UsuarioServiceImpl();}
 
+    @Bean
+    EmprestimoServiceImpl emprestimoService(){return new EmprestimoServiceImpl();}
+
+    @Bean
+    BibliotecaServiceImpl bibliotecaService(){return new BibliotecaServiceImpl();}
 }

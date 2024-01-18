@@ -1,10 +1,10 @@
 package com.librarylink.api.controller;
 
 import com.librarylink.api.dto.LivroDTO;
-import com.librarylink.api.models.Livro;
-import com.librarylink.api.repository.LivroRepository;
-import com.librarylink.api.service.LivroService;
+import com.librarylink.api.service.schedule.LivroService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,58 +15,58 @@ import java.util.Optional;
 public class LivroController {
 
     @Autowired
-    private LivroRepository livroRep;
-    @Autowired
     private LivroService livroService;
 
     // Cadastrar vários livros - POST
     @PostMapping("/livros")
-    public String criarLivros(@RequestBody List<LivroDTO> livros){
-            try{
-                livroService.saveAll(livros);
-                return "Livros salvos com sucesso";
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "Revise os valores e tente novamente. Erro: " + e.getMessage();
-            }
+    public ResponseEntity<String> createLivros(@RequestBody List<LivroDTO> livros){
+        try{
+            livroService.saveAll(livros);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Livros salvos com sucesso");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Revise os valores e tente novamente. Erro: " + e.getMessage());
         }
+    }
     //Deletar - Delete
     @DeleteMapping("/livro/{id}")
-    public String deletaBiblioteca(@PathVariable("id") Long id){
+    public ResponseEntity<String> deleteLivro(@PathVariable("id") Long id){
         try {
-            livroRep.deleteById(id);
-            return "Apagado com sucesso";
+            livroService.deleteById(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Apagado com sucesso");
         } catch (Exception e) {
-            return "Esse livro não existe ou não pôde ser apagada" + e.getMessage();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Esse livro não existe ou não pôde ser apagada" + e.getMessage());
         }
     }
 
     // Ler todas - GET
-    @GetMapping("/livro")
-    public List<LivroDTO> LerTudoLivro() {
-        return livroService.findAll();
+    @GetMapping("/livros")
+    public ResponseEntity<List<LivroDTO>> getAllLivros() {
+        return ResponseEntity.status(HttpStatus.OK).body(livroService.findAll());
     }
 
     // Ler uma por id - GET
     @GetMapping("/livro/{id}")
-    public String LerBibliotecaPorId(@PathVariable("id") Long id) {
-        Optional<LivroDTO> livro = livroService.findById(id);
-
-        if (livro.isPresent()) {
-            return livro.get().toString();
-        } else {
-            return "Biblioteca não encontrada com o ID: " + id;
+    public ResponseEntity<LivroDTO> getLivroById(@PathVariable("id") Long id) {
+        try {
+            Optional<LivroDTO> livro = livroService.findById(id);
+            if (livro.isPresent()) {
+                return ResponseEntity.status(HttpStatus.OK).body(livro.get());
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     // Editar por id - PUT
     @PutMapping("/livro/{id}")
-    public String editarLivro(@PathVariable Long id, @RequestBody LivroDTO livroDTO) {
+    public ResponseEntity<LivroDTO> updateLivro(@PathVariable Long id, @RequestBody LivroDTO livroDTO) {
         try {
-            Livro livro = livroService.editLivro(id, livroDTO);
-            return livro.toString();
+            LivroDTO livro = livroService.updateLivro(id, livroDTO);
+            return ResponseEntity.status(HttpStatus.OK).body(livro);
         } catch (Exception e) {
-            return e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }
